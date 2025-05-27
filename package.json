@@ -1,0 +1,26 @@
+{
+  "name": "motereferat",
+  "version": "1.0.0",
+  "description": "Nodejs scripts for handling motereferats from SMART and Enable",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vestfoldfylke/motereferat.git"
+  },
+  "author": "jorgtho",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vestfoldfylke/motereferat/issues"
+  },
+  "homepage": "https://github.com/vestfoldfylke/motereferat#readme",
+  "dependencies": {
+    "@azure/identity": "^4.8.0",
+    "@vtfk/logger": "^6.3.4",
+    "axios": "^1.9.0",
+    "dotenv": "^16.4.7"
+  }
+}

@@ -134,3 +134,26 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Certificates
+/cert
+*.crt
+*.cer
+*.pem
+*.key
+*.p12
+*.pfx
+*.p7b
+*.p7s
+
+# Cache directories
+*-cache/
+
+# Test stuff
+/ignore
+
+# Local config
+sakslister.js
+
+# MacOS
+.DS_Store
