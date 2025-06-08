@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert'
-import { getMeetingDate } from '../lib/smart/get-ready-meetings.js'
+import { getMeetingDate } from '../lib/smart/smart-meetings.js'
 
 describe('getMeetingDate works as expected when', () => {
   it('has a valid date', () => {
