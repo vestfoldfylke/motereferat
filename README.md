@@ -89,8 +89,9 @@ Publiseringsjobben til referat fungerer - trenger kun arkivering, men ha i bakho
 
 OBS! Hva om noen endrer i etterkant - får bare arkivere i samme dokument som vedlegg i etterkant "Etterslenger", når vi arkiverer får vi vel slå opp saken bare...
 
-- Hvis jeg henter ALT og tar alt i en kjøring, kan de bli litt klønete... Eller forsåvidt ikke, bare å gønne egt, å ha kontroll på retries osv.
+JA - husk å slå opp både sak og dokument, "etterarkiver" dokumenter? De blir nye "møter" hvis de er arkivert fra før
 
+- Hvis jeg henter ALT og tar alt i en kjøring, kan de bli litt klønete... Eller forsåvidt ikke, bare å gønne egt, å ha kontroll på retries osv.
 
 - Hm, kun de som har "publisere referat" til arkiv? Ja sikkert lurt, var jo sånn det var (y)
 
