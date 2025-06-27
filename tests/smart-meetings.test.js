@@ -61,13 +61,13 @@ describe('createMeetingQueue works as expected when', () => {
     siteName: 'EnSiteDa',
     listName: 'EnListeDa',
     listUrl: 'https://example.com/sites/EnSiteDa/EnListeDa',
-    listDisplayName: 'En Liste Da',
+    listDisplayName: 'En Liste Da'
   })
   const mockedMeetingConfig = MeetingConfig.parse({
     MEETING_ARENA: 'En Møte Arena',
     LIST_URL: 'https://example.com/sites/EnSiteDa/EnListeDa',
     ARCHIVE: {
-      CASE_EXTERNAL_ID_PREFIX: 'ORG-SMARTMtereferat-test',
+      EXTERNAL_ID_PREFIX: 'ORG-SMARTMtereferat-test',
       RESPONSIBLE_ENTERPRISE_RECNO: 123
     },
     PDF: {
@@ -97,7 +97,7 @@ describe('createMeetingQueue works as expected when', () => {
   it('it has one cached meetings, which is also in newMeetingItems - should use cached meeting', () => {
     meetingCache.clear()
     /** @type {SmartMeeting} */
-    const cachedMeeting = {      
+    const cachedMeeting = {
       meetingId: 'EnSiteDa-EnListeDa-2023-10-02',
       meetingDate: '2023-10-02',
       archiveFlowStatus: createDefaultArchiveFlowStatus(),

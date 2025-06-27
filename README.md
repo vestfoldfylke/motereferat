@@ -22,7 +22,7 @@ skjfhpweofwoejfldksf...
 ```
 - Lagre som **client_auth.pem**
 
-- Deretter må du ha et .cer av public key av en eller annen grunn - dette skal lastes opp på app registration senere
+- Deretter må du ha et .cer av public key av en eller annen grunn - dette skal lastes opp på app registration senere - neida, man kan bruke public PEM
 ```bash
 openssl x509 -in ./cert/public.pem -outform pem -outform der -out ./cert/public.cer
 ```
