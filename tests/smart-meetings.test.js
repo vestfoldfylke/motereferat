@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert'
-import { createMeetingQueue, getMeetingDate, SmartMeeting } from '../lib/smart/smart-meetings.js'
+import { createMeetingQueue, getMeetingDate } from '../lib/smart/smart-meetings.js'
 import { createSimpleCache } from '../lib/simple-cache.js'
 import { ListInfo } from '../lib/graph.js'
 import { MeetingConfig } from '../motereferat-config/sakslister.js'
@@ -96,7 +96,7 @@ describe('createMeetingQueue works as expected when', () => {
   })
   it('it has one cached meetings, which is also in newMeetingItems - should use cached meeting', () => {
     meetingCache.clear()
-    /** @type {SmartMeeting} */
+    /** @type {import('../lib/smart/smart-meetings.js').SmartMeeting} */
     const cachedMeeting = {
       meetingId: 'EnSiteDa-EnListeDa-2023-10-02',
       meetingDate: '2023-10-02',

@@ -1,9 +1,7 @@
 // @ts-check
 
-import { MeetingConfig } from '../lib/smart/smart-sakslister.js'
-
 // EKSEMPEL PÅ SAKSLISTE KONFIGURASJON FOR SMART-MØTER, kopier denne filen til motereferat-config/sakslister.js og endrer på den som trengs
-/** @type {MeetingConfig[]} */
+/** @type {import('../lib/smart/smart-sakslister').MeetingConfig[]} */
 export const SMART_SAKSLISTER_CONFIG = [
   {
     MEETING_ARENA: 'F. eks FLG',
