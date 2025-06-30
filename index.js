@@ -85,7 +85,7 @@ for (const meetingConfig of SMART_SAKSLISTER) {
       logger('warn', [`Meeting has run too many times (${meeting.archiveFlowStatus.runs}), skipping. Someone must check this meeting manually.`])
       return false // Skip meetings that have run too many times
     }
-    if (new Date(meeting.archiveFlowStatus.nextRun) < now) {
+    if (new Date(meeting.archiveFlowStatus.nextRun) > now) {
       logger('info', [`Meeting is not ready for run, waiting until ${meeting.archiveFlowStatus.nextRun}`])
       return false // Skip meetings that are not ready for run
     }
