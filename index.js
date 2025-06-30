@@ -11,7 +11,9 @@ import { syncMeetingArchiveCase } from './lib/jobs/sync-archive-meeting.js'
 import { createPdf } from './lib/jobs/create-pdf.js'
 import { archiveMeeting } from './lib/jobs/archive-meeting.js'
 import { setMeetingItemsToArchived } from './lib/jobs/set-meeting-items-to-archived.js'
-import { SMART } from './config.js'
+import { SMART, SMART_CACHE } from './config.js'
+import { createStatistic } from './lib/jobs/create-statistic.js'
+import { cleanUpMeeting } from './lib/jobs/cleanup-meeting.js'
 
 /**
  *
@@ -74,7 +76,7 @@ for (const meetingConfig of SMART_SAKSLISTER) {
   const newMeetingItems = repackSmartListItems(readySmartListItems.value).filter(item => SMART.READY_FOR_ARCHIVE_ITEM_STATUSES.includes(item.itemStatus))
   // writeFileSync('./ignore/new-meeting-items.json', JSON.stringify(newMeetingItems, null, 2))
   logger('info', [`Filtered down to ${newMeetingItems.length} items that are ready for archive - creating meeting queue`])
-  const meetingQueueCache = createSimpleCache('./.smart-archive/queue-cache')
+  const meetingQueueCache = createSimpleCache(SMART_CACHE.QUEUE_DIR_NAME)
   const meetingQueue = createMeetingQueue(meetingConfig, listInfo, meetingQueueCache, newMeetingItems)
   logger('info', [`Created meeting queue with ${meetingQueue.length} meetings - filtering out meetings that are not ready for retry or has run too many times`])
   const now = new Date()
@@ -102,26 +104,35 @@ for (const meetingConfig of SMART_SAKSLISTER) {
     meeting.archiveFlowStatus.failed = false // Reset failed status for new runs
     {
       const jobName = 'getMeetingAttachments'
-      await handleJob(meeting, jobName, async () => await getMeetingAttachments(meeting))
+      await handleJob(meeting, jobName, async () => await getMeetingAttachments(meeting), meetingQueueCache)
     }
     {
       const jobName = 'syncMeetingArchiveCase'
-      await handleJob(meeting, jobName, async () => await syncMeetingArchiveCase(meeting))
+      await handleJob(meeting, jobName, async () => await syncMeetingArchiveCase(meeting), meetingQueueCache)
     }
     {
       const jobName = 'createPdf'
-      await handleJob(meeting, jobName, async () => await createPdf(meeting))
+      await handleJob(meeting, jobName, async () => await createPdf(meeting), meetingQueueCache)
     }
     {
       const jobName = 'archiveMeeting'
-      await handleJob(meeting, jobName, async () => await archiveMeeting(meeting))
+      await handleJob(meeting, jobName, async () => await archiveMeeting(meeting), meetingQueueCache)
     }
     {
       const jobName = 'setMeetingItemsToArchived'
-      await handleJob(meeting, jobName, async () => await setMeetingItemsToArchived(meeting))
+      await handleJob(meeting, jobName, async () => await setMeetingItemsToArchived(meeting), meetingQueueCache)
     }
-    // Så lager vi noe statistikk
-
-    // Så rydder vi opp i cachen flytter til finished (om finished da)
+    {
+      const jobName = 'createStatistic'
+      await handleJob(meeting, jobName, async () => await createStatistic(meeting), meetingQueueCache)
+    }
+    {
+      const jobName = 'cleanUpMeeting'
+      await handleJob(meeting, jobName, async () => await cleanUpMeeting(meeting, meetingQueueCache), meetingQueueCache)
+    }
   }
 }
+
+// Log something blablab
+// Then delete meetings that are finished and have been in the cache for more than SMART_CACHE.FINISHED_RETENTION_DAYS days
+

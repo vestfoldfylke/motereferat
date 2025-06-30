@@ -39,7 +39,6 @@ export const GRAPH = {
 
 export const SMART_CACHE = {
   QUEUE_DIR_NAME: process.env.SMART_CACHE_QUEUE_DIR_NAME || './.smart-archive/queue',
-  FAILED_DIR_NAME: process.env.SMART_CACHE_FAILED_DIR_NAME || './.smart-archive/failed', // Hmm kanskje vi bare lar de ligge i køen - så de ikke blir plukket opp igjen?
   FINISHED_DIR_NAME: process.env.SMART_CACHE_FINISHED_DIR_NAME || './.smart-archive/finished',
   FINISHED_RETENTION_DAYS: process.env.SMART_CACHE_FINISHED_RETENTION_DAYS ? parseInt(process.env.SMART_CACHE_FINISHED_RETENTION_DAYS) : 30
 }
