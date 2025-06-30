@@ -133,5 +133,7 @@ for (const meetingConfig of SMART_SAKSLISTER) {
   }
 }
 
+// IT works - just do the stuff below, and create some documentation (flowchart or something) for how this works
+
 // Log something blablab
 // Then delete meetings that are finished and have been in the cache for more than SMART_CACHE.FINISHED_RETENTION_DAYS days
