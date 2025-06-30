@@ -3,8 +3,8 @@ import assert from 'node:assert'
 import { createMeetingQueue, getMeetingDate } from '../lib/smart/smart-meetings.js'
 import { createSimpleCache } from '../lib/simple-cache.js'
 import { ListInfo } from '../lib/graph.js'
-import { MeetingConfig } from '../motereferat-config/sakslister.js'
 import { createDefaultArchiveFlowStatus } from '../lib/smart/archive-flow-status.js'
+import { MeetingConfig } from '../lib/smart/smart-sakslister.js'
 
 const createMockMeetingItem = (id, title, meetingDate) => {
   /** @type {import('../lib/smart/smart-meeting-items.js').SmartMeetingItem} */
@@ -68,7 +68,8 @@ describe('createMeetingQueue works as expected when', () => {
     LIST_URL: 'https://example.com/sites/EnSiteDa/EnListeDa',
     ARCHIVE: {
       EXTERNAL_ID_PREFIX: 'ORG-SMARTMtereferat-test',
-      RESPONSIBLE_ENTERPRISE_RECNO: 123
+      RESPONSIBLE_ENTERPRISE_RECNO: 123,
+      DOCUMENT_ACCESS_GROUP: 'Test Dokument Tilgangsgruppe'
     },
     PDF: {
       SECTOR: 'Test seksjon'

@@ -5,6 +5,7 @@
 export const SMART_SAKSLISTER_CONFIG = [
   {
     MEETING_ARENA: 'F. eks FLG',
+    ENABLED: true, // Sett til false for å deaktivere arkivering fra denne saklisten
     LIST_URL: 'https://{tenantname}.sharepoint.com/sites/{sitename}/Lists/{listname}/{samma driten hva som står bak her}?{og her}.aspx', // Kopier URL til sharepoint sakslisten
     ARCHIVE: {
       RESPONSIBLE_ENTERPRISE_RECNO: 12345, // Recno til ansvarlig enhet i arkivet, må være et gyldig recno

@@ -11,7 +11,9 @@ const requiredEnvVars = [
   'ARCHIVE_API_URL',
   'ARCHIVE_API_SCOPE',
   'PDF_API_URL',
-  'PDF_API_KEY'
+  'PDF_API_KEY',
+  'STATISTICS_API_URL',
+  'STATISTICS_API_KEY'
 ]
 
 const missingEnvVars = []
@@ -37,8 +39,15 @@ export const GRAPH = {
 
 export const SMART_CACHE = {
   QUEUE_DIR_NAME: process.env.SMART_CACHE_QUEUE_DIR_NAME || './.smart-archive/queue',
-  FAILED_DIR_NAME: process.env.SMART_CACHE_FAILED_DIR_NAME || './.smart-archive/cache',
-  FINISHED_DIR_NAME: process.env.SMART_CACHE_FINISHED_DIR_NAME || './.smart-archive/finished'
+  FAILED_DIR_NAME: process.env.SMART_CACHE_FAILED_DIR_NAME || './.smart-archive/failed', // Hmm kanskje vi bare lar de ligge i køen - så de ikke blir plukket opp igjen?
+  FINISHED_DIR_NAME: process.env.SMART_CACHE_FINISHED_DIR_NAME || './.smart-archive/finished',
+  FINISHED_RETENTION_DAYS: process.env.SMART_CACHE_FINISHED_RETENTION_DAYS ? parseInt(process.env.SMART_CACHE_FINISHED_RETENTION_DAYS) : 30
+}
+
+export const SMART = {
+  READY_FOR_ARCHIVE_ITEM_STATUSES: process.env.SMART_READY_FOR_ARCHIVE_STATUSES ? process.env.SMART_READY_FOR_ARCHIVE_STATUSES.split(',') : ['Avsluttet', 'Utsatt til neste møte'],
+  RETRY_INTERVAL_MINUTES: process.env.SMART_RETRY_INTERVAL_MINUTES ? process.env.SMART_RETRY_INTERVAL_MINUTES.split(',').map(Number) : [5, 30, 240, 1440, 1440], // 5 min, 30 min, 4 hours, 1 day, 10 days
+  MAX_MEETINGS_PER_ARENA_PER_RUN: process.env.SMART_MAX_MEETINGS_PER_ARENA_PER_RUN ? parseInt(process.env.SMART_MAX_MEETINGS_PER_ARENA_PER_RUN) : 10
 }
 
 export const ARCHIVE = {
@@ -62,4 +71,9 @@ export const ARCHIVE = {
 export const PDF = {
   API_URL: process.env.PDF_API_URL,
   API_KEY: process.env.PDF_API_KEY
+}
+
+export const STATISTICS = {
+  API_URL: process.env.STATISTICS_API_URL,
+  API_KEY: process.env.STATISTICS_API_KEY
 }
