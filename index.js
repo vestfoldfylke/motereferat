@@ -6,7 +6,7 @@ import { repackSmartListItems } from './lib/smart/smart-meeting-items.js'
 import { createMeetingQueue } from './lib/smart/smart-meetings.js'
 import { getSmartItemsReadyForArchive } from './lib/smart/smart-sp-requests.js'
 import { SMART_SAKSLISTER } from './lib/smart/smart-sakslister.js'
-import { writeFileSync } from 'fs'
+import { statSync, writeFileSync } from 'fs'
 import { syncMeetingArchiveCase } from './lib/jobs/sync-archive-meeting.js'
 import { createPdf } from './lib/jobs/create-pdf.js'
 import { archiveMeeting } from './lib/jobs/archive-meeting.js'
@@ -75,6 +75,8 @@ logConfig({
   localLogger: createLocalLogger('smart-archive-meetings')
 })
 
+logger('info', ['---------- Starting smart archive meetings script ----------'])
+
 for (const meetingConfig of SMART_SAKSLISTER) {
   logConfig({
     prefix: meetingConfig.MEETING_ARENA
@@ -141,8 +143,27 @@ for (const meetingConfig of SMART_SAKSLISTER) {
     }
   }
 }
+logConfig({
+  prefix: 'post-processing'
+})
 
-// IT works - just do the stuff below, and create some documentation (flowchart or something) for how this works
+const finishedCache = createSimpleCache(SMART_CACHE.FINISHED_DIR_NAME)
+logger('info', ['Cleaning up finished meetings from cache'])
+const finishedMeetings = finishedCache.files().map(file => {
+  const filePath = `${finishedCache.cacheDirectory}/${file}`
+  const now = new Date()
+  const fileDate = statSync(filePath).mtime
+  const daysDifference = Math.floor((now - fileDate) / (1000 * 60 * 60 * 24))
+  if (daysDifference > SMART_CACHE.FINISHED_RETENTION_DAYS) {
+    logger('info', [`File ${file} was last modified ${daysDifference} days ago, which is above limit: ${SMART_CACHE.FINISHED_RETENTION_DAYS}. Deleting finished meeting from cache.`])
+    finishedCache.delete(file.replace('.json', '')) // Remove the file from cache
+  } else {
+    logger('info', [`File ${file} was last modified ${daysDifference} days ago, which is not above limit: ${SMART_CACHE.FINISHED_RETENTION_DAYS}. Keeping finished meeting in cache.`])
+  }
+})
+logger('info', ['Finished cleaning up finished meetings from cache'])
 
-// Log something blablab
-// Then delete meetings that are finished and have been in the cache for more than SMART_CACHE.FINISHED_RETENTION_DAYS days
+logConfig({
+  prefix: undefined // Reset prefix
+})
+logger('info', ['---------- Script finished ----------'])
