@@ -14,6 +14,7 @@ import { setMeetingItemsToArchived } from './lib/jobs/set-meeting-items-to-archi
 import { SMART, SMART_CACHE } from './config.js'
 import { createStatistic } from './lib/jobs/create-statistic.js'
 import { cleanUpMeeting } from './lib/jobs/cleanup-meeting.js'
+import { createLocalLogger } from './lib/helpers/local-logger.js'
 
 /**
  *
@@ -65,6 +66,14 @@ const handleJob = async (meeting, jobName, jobFunction, meetingCache) => {
     meetingCache.set(meeting.meetingId, meeting) // Update cache with the current state of the meeting
   }
 }
+
+// Main script execution
+logConfig({
+  teams: {
+    onlyInProd: false
+  },
+  localLogger: createLocalLogger('smart-archive-meetings')
+})
 
 for (const meetingConfig of SMART_SAKSLISTER) {
   logConfig({

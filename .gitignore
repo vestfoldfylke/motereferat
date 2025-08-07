@@ -157,3 +157,6 @@ sakslister.js
 
 # MacOS
 .DS_Store
+
+# Logs
+/logs
