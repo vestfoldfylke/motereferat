@@ -65,6 +65,7 @@ describe('createMeetingQueue works as expected when', () => {
   })
   const mockedMeetingConfig = MeetingConfig.parse({
     MEETING_ARENA: 'En Møte Arena',
+    ENABLED: true,
     LIST_URL: 'https://example.com/sites/EnSiteDa/EnListeDa',
     ARCHIVE: {
       EXTERNAL_ID_PREFIX: 'ORG-SMARTMtereferat-test',
