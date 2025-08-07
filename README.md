@@ -1,10 +1,14 @@
 # motereferat
 Nodejs scripts for handling motereferats from SMART and Enable
 
-# Sertifikat
+# SMART
+
+## Oppsett
+
+### Sertifikat
 Enten bestill et sertifikat hvis du er av den rike og sikre typen, eller opprett et i f. eks Azure Keyvault hvis du har tilgang på det, eller bare mekk et via openssl:
 
-## Lag selv
+#### Lag selv
 - Om du ikke sitter på unix - bruk wsl på Windows
 - Først lager du public cert med private key (det er samma driten hva du setter som passord fordi Microsoft...):
 ```bash
@@ -22,7 +26,9 @@ skjfhpweofwoejfldksf...
 ```
 - Lagre som **client_auth.pem**
 
-- Deretter må du ha et .cer av public key av en eller annen grunn - dette skal lastes opp på app registration senere - neida, man kan bruke public PEM
+- Så laster du opp public.pem til app registreringen
+
+- Dersom du ønsker en .cer av public key av en eller annen grunn:
 ```bash
 openssl x509 -in ./cert/public.pem -outform pem -outform der -out ./cert/public.cer
 ```
@@ -32,66 +38,57 @@ openssl x509 -in ./cert/public.pem -outform pem -outform der -out ./cert/public.
 openssl pkcs12 -export -in ./cert/public.pem -inkey ./cert/private.key -out ./cert/motereferat_client_auth.pfx -password pass:{super-secret}
 ```
 
-# Skisse
-Publiseringsjobben til referat fungerer - trenger kun arkivering, men ha i bakhodet at publisering også kan bli relevant - muligens og til nettsider
+### Config
+- Opprett en .env fil med følgende verdier
+```bash
+AZURE_CLIENT_ID="<client id fra app registration>"
+AZURE_TENANT_ID="<tenant id fra app registration>"
+AZURE_CLIENT_CERTIFICATE_PATH=./cert/client_auth.pem
+SHAREPOINT_TENANT_NAME="<navnet på tenant (det før .sharepoint.com)>"
+ARCHIVE_API_SCOPE="scope for å arkivere mot arkiv-api"
+ARCHIVE_API_URL="api-url til arkiv-api"
+PDF_API_URL="api-url til pdf-api"
+PDF_API_KEY="api-nøkkel til pdf-api"
+STATISTICS_API_URL="api-url til stats-api"
+STATISTICS_API_KEY="api-nøkkel til stats-api"
 
-- Start script - sjekker at har cachet alle listeid og siteid for konfigelementene. Henter inn de som evt ikke er satt opp og lagrer som json.
-- Kan ha en config i sharepoint også? (url til konfig)
-  - Trenger da i så fall:
-    - Title
-    - Enabled
-    - sakslisteurl
-    - paragraph?
-- Drit i SP lista for nå - kan tweakes inn senere
+# OPTIONAL VALUES, se default i ./config.js
+SMART_READY_FOR_ARCHIVE_STATUSES="<kommaseparert liste med statuser som skal arkiveres>"
+SMART_MAX_MEETINGS_PER_ARENA_PER_RUN="1" # Hvor mange møter skal arkiveres per arena av gangen
+SMART_RETRY_INTERVAL_MINUTES="1,5,5,10" # Hvor mange ganger skal til retries (antall tall), og hvor mange minutter skal ventes mellom hver retry
+SHAREPOINT_REST_API_SCOPE="<hvis du trenger annet enn default>"
+GRAPH_API_SCOPE="<hvis du trenger annet enn default>"
+GRAPH_API_URL="<hvis du trenger annet enn default, f. eks beta>"
+SMART_CACHE_QUEUE_DIR_NAME="<hvis du trenger annet lokasjon på cacha drit enn default>"
+SMART_CACHE_FINISHED_DIR_NAME="<hvis du trenger annet lokasjon på cacha drit enn default>"
+SMART_CACHE_FINISHED_RETENTION_DAYS="<hvor mange dager vil du spare på ferdige møter (for evt feilsøking)"
+ARCHIVE_CASE_DEFAULT_ACCESS_CODE="<hvis du trenger annet enn default>"
+ARCHIVE_CASE_DEFAULT_ACCESS_GROUP="<hvis du trenger annet enn default>"
+ARCHIVE_CASE_DEFAULT_PARAGRAPH="<hvis du trenger annet enn default>"
+ARCHIVE_DOCUMENT_DEFAULT_ACCESS_CODE="<hvis du trenger annet enn default>"
+ARCHIVE_DOCUMENT_DEFAULT_ACCESS_GROUP="<hvis du trenger annet enn default>"
+ARCHIVE_DOCUMENT_DEFAULT_PARAGRAPH="<hvis du trenger annet enn default>"
+```
 
-# config
-{
-  title: "FLG", // Bare for logger og syns skyld
-  enabled: true, // av / på
-  responsible: <epost> // For arkivet - responsibleEmail, oppsett kan vel også sjekke at det er korrekt? Evt bare ha en fallback til arkiv, og plinge på noen!
-  saksliste: {
-    siteurl: "https://www.example.com",
-    listeId: "12345",
-  },
-  arkivering: {
-    enabled: true,
-    enterprise: true,
-    person: false, // responsible person?
-    paragraph: true,
-    tilgangsgruppe: "admin",
-    blabla...
-  },
-  publisere-referat: {
-    enabled: true,
-    referatliste: true
-  }
-}
+- Opprett filen ./motereferat-config/sakslister.js, kopier eksempel [./motereferat-config/sakslister-example.js](./motereferat-config/sakslister-example.js), og fyll inn verdier for sakslister som skal ha arkivering på seg.
 
-# Arkivering (SMART)
-- Henter alle listeelementer som har publisering = true og "ikke arkivert", og møtedato er minst en uke tilbake i tid
-- Slår sammen alle listeelementer som hører til samme møtedato (samle et møte med all data som trengs)
-- Validerer at møtet er klar for arkivering:
-  - Alle sakene har enten status "Avsluttet" eller "Utsatt til neste møte"
-  - Hvis ikke validert - send epost til ansvarlig å be de fikse? Prøv igjen etter et gitt tidspunkt, ikke om 5 min liksom
-- Henter alle vedlegg for møtet (krever sp-rest)
-  - Mellomlagrer vedlegg på filsystem
-- Lager en pdf med alle sakene, sorteres (først på sortering, deretter på id), med metadata og faktiske data
+## Løsningsbeskrivelse
+- For hver møtearena/saksliste som er satt opp i ./motereferat-config/sakslister.js
+  - Henter informasjon om Sharepoint-listen (siteId, listId osv)
+  - Henter alle listeelementer som ikke er arkivert, og som har møtedato eldre enn en uke tilbake
+  - Filtrerer til listelementer med status som skal arkiveres
+  - Slår sammen listeelementer med samme møtedato, slik at vi får en liste med møter som er klare for arkivering
+  - For hvert møte som skal arkiveres
+    - Hent alle vedlegg som finnes for listeelementer i møte
+    - Finn eller opprett arkiv-sak for denne møtearenaen
+    - Opprett møtereferat som en pdf basert på listeelementene for møtet
+    - Arkiver møtereferatet og vedlegg som et dokument i arkiv-saken
+    - Sett de håndterte listeelementene for møtet til status arkivert i Sharepoint-listen
+    - Opprett et statistikk-element for møte-arkiveringen
+    - Rydd opp cachede filer, vedlegg, og data
+- Rydd opp i fullførte møter som er gamle (TODO)
 
-- Gjør klart arkiv-kall basert på arkiverings-config
-- Arkivstruktur:
-  - Sak: FLG-møter {årstall for møtet}, opprett ny sak dersom den ikke finnes (husk entydige søkekriterier)
-    - Opprett nytt saksdokument for det gjeldende møtet (FLG-møte 01.03.2024)
-    - Legg inn pdf-en
-    - Sikkert lurt å legge inn alle vedleggene etterpå, for å ikke knekke archive-api
+// MANgler
+Cleanup
 
-- Send en e-post til ansvarlig, dersom det er konfigurert opp slik?
-- Statistikk-oppføring for moro skyld
-
-OBS! Hva om noen endrer i etterkant - får bare arkivere i samme dokument som vedlegg i etterkant "Etterslenger", når vi arkiverer får vi vel slå opp saken bare...
-
-JA - husk å slå opp både sak og dokument, "etterarkiver" dokumenter? De blir nye "møter" hvis de er arkivert fra før
-
-- Hvis jeg henter ALT og tar alt i en kjøring, kan de bli litt klønete... Eller forsåvidt ikke, bare å gønne egt, å ha kontroll på retries osv.
-
-- Hm, kun de som har "publisere referat" til arkiv? Ja sikkert lurt, var jo sånn det var (y)
-
+Finished retention days
