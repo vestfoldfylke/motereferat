@@ -6,7 +6,7 @@ import { repackSmartListItems } from './lib/smart/smart-meeting-items.js'
 import { createMeetingQueue } from './lib/smart/smart-meetings.js'
 import { getSmartItemsReadyForArchive } from './lib/smart/smart-sp-requests.js'
 import { SMART_SAKSLISTER } from './lib/smart/smart-sakslister.js'
-import { statSync, writeFileSync } from 'fs'
+import { statSync } from 'fs'
 import { syncMeetingArchiveCase } from './lib/jobs/sync-archive-meeting.js'
 import { createPdf } from './lib/jobs/create-pdf.js'
 import { archiveMeeting } from './lib/jobs/archive-meeting.js'
@@ -36,7 +36,7 @@ const handleJob = async (meeting, jobName, jobFunction, meetingCache) => {
   if (meetingCache && typeof meetingCache.set !== 'function') throw new Error('meetingCache must be a SimpleCache instance with a set method')
 
   logConfig({
-    prefix: `${meeting.meetingConfig.MEETING_ARENA} - ${meeting.meetingId} - ${jobName}`
+    prefix: `${meeting.meetingConfig.MEETING_ARENA} - ${meeting.meetingConfig.DEMO_MODE ? 'DEMO -' : ''} ${meeting.meetingId} - ${jobName}`
   })
 
   /** @type {import('./lib/smart/archive-flow-status.js').JobStatus} */
@@ -79,7 +79,7 @@ logger('info', ['---------- Starting smart archive meetings script ----------'])
 
 for (const meetingConfig of SMART_SAKSLISTER) {
   logConfig({
-    prefix: meetingConfig.MEETING_ARENA
+    prefix: `${meetingConfig.MEETING_ARENA}${meetingConfig.DEMO_MODE ? '- DEMO' : ''}`
   })
   const listInfo = await getListInfo(meetingConfig.LIST_URL)
   const readySmartListItems = await getSmartItemsReadyForArchive(listInfo)
@@ -103,7 +103,6 @@ for (const meetingConfig of SMART_SAKSLISTER) {
     return true // Meeting is ready for run
   })
   logger('info', [`Filtered down to ${readyForRunMeetingQueue.length} meetings that are ready for run - slicing down to max ${SMART.MAX_MEETINGS_PER_ARENA_PER_RUN} meetings per run`])
-  writeFileSync('./ignore/meeting-queue.json', JSON.stringify(readyForRunMeetingQueue, null, 2), 'utf8')
 
   const meetingsToHandle = readyForRunMeetingQueue.slice(0, SMART.MAX_MEETINGS_PER_ARENA_PER_RUN)
   logger('info', [`Handling ${meetingsToHandle.length} meetings in this run`])
@@ -143,6 +142,7 @@ for (const meetingConfig of SMART_SAKSLISTER) {
     }
   }
 }
+
 logConfig({
   prefix: 'post-processing'
 })
