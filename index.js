@@ -149,7 +149,7 @@ logConfig({
 
 const finishedCache = createSimpleCache(SMART_CACHE.FINISHED_DIR_NAME)
 logger('info', ['Cleaning up finished meetings from cache'])
-const finishedMeetings = finishedCache.files().map(file => {
+finishedCache.files().forEach(file => {
   const filePath = `${finishedCache.cacheDirectory}/${file}`
   const now = new Date()
   const fileDate = statSync(filePath).mtime
