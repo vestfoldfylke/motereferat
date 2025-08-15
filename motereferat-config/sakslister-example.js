@@ -11,7 +11,7 @@ export const SMART_SAKSLISTER_CONFIG = [
     ARCHIVE: {
       RESPONSIBLE_ENTERPRISE_RECNO: 12345, // Recno til ansvarlig enhet i arkivet, må være et gyldig recno
       RESPONSIBLE_PERSON_EMAIL: 'ansatt@fylke.no', // Bruk enten RESPONSIBLE_ENTERPRISE_RECNO eller RESPONSIBLE_PERSON_EMAIL, RESPONSIBLE_PERSON_EMAIL tar prioritet over RESPONSIBLE_ENTERPRISE_RECNO hvis begge er satt
-      DOCUMENT_ACCESS_GROUP: 'Seksjon blablabal',
+      DOCUMENT_ACCESS_GROUP: 'Seksjon blablabal', // Required inntil videre
       CASE_ACCESS_CODE: 'U', // Optional, dersom satt - overstyrer den CASE_DEFAULT_VALUES.ACCESS_GROUP fra config
       CASE_ACCESS_GROUP: 'Alle', // Optional, dersom satt - overstyrer den CASE_DEFAULT_VALUES.ACCESS_GROUP fra config
       CASE_PARAGRAPH: '', // Optional, dersom satt - overstyrer den CASE_DEFAULT_VALUES.PARAGRAPH fra config
