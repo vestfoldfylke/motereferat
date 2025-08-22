@@ -46,7 +46,8 @@ export const SMART_CACHE = {
 export const SMART = {
   READY_FOR_ARCHIVE_ITEM_STATUSES: process.env.SMART_READY_FOR_ARCHIVE_STATUSES ? process.env.SMART_READY_FOR_ARCHIVE_STATUSES.split(',') : ['Avsluttet', 'Utsatt til neste møte'],
   RETRY_INTERVAL_MINUTES: process.env.SMART_RETRY_INTERVAL_MINUTES ? process.env.SMART_RETRY_INTERVAL_MINUTES.split(',').map(Number) : [5, 30, 240, 1440, 1440], // 5 min, 30 min, 4 hours, 1 day, 10 days
-  MAX_MEETINGS_PER_ARENA_PER_RUN: process.env.SMART_MAX_MEETINGS_PER_ARENA_PER_RUN ? parseInt(process.env.SMART_MAX_MEETINGS_PER_ARENA_PER_RUN) : 10
+  MAX_MEETINGS_PER_ARENA_PER_RUN: process.env.SMART_MAX_MEETINGS_PER_ARENA_PER_RUN ? parseInt(process.env.SMART_MAX_MEETINGS_PER_ARENA_PER_RUN) : 10,
+  DEMO_PDF_DIR: process.env.SMART_DEMO_PDF_DIR || './ignore/DEMO_PDFS'
 }
 
 export const ARCHIVE = {

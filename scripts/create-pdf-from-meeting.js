@@ -1,29 +1,33 @@
+// Creates only a meeting-pdf from a finished-meeting item. Fixes items with md field as well if missing
+
+import { writeFileSync, existsSync, mkdirSync, readdirSync, readFileSync } from 'fs'
+import { ARCHIVE, PDF } from '../config.js'
+import { turndownService } from '../lib/helpers/turndown-html-to-md.js'
 import axios from 'axios'
-import { ARCHIVE, PDF, SMART } from '../../config.js'
-import { createSimpleCache } from '../simple-cache.js'
-import { z } from 'zod/v4'
-import { writeFileSync, mkdirSync, existsSync } from 'fs'
 
-// Init cache
-const pdfCacheDir = './.smart-archive/pdfs'
-const pdfCache = createSimpleCache(pdfCacheDir)
-
-export const CreatePdfResult = z.object({
-  pdfCacheDir: z.string(),
-  cacheKey: z.string()
-})
+// Config
+const inputMeetingsDir = './ignore/create-pdf-from-meetings'
+const outputMeetingsDir = `${inputMeetingsDir}/result`
+// End config
 
 /**
 *
- * @param {import("../smart/smart-meetings").SmartMeeting} meeting
+ * @param {import('../lib/smart/smart-meetings.js').SmartMeeting} meeting
  */
-export const createPdf = async (meeting) => {
+const createPdf = async (meeting) => {
   const itemAttachments = meeting.archiveFlowStatus.jobs.getMeetingAttachments.result?.itemAttachments
   if (!itemAttachments || !Array.isArray(itemAttachments)) {
     throw new Error(`Job getMeetingAttachments has not been run or did not return valid attachments for meeting ${meeting.meetingId}`)
   }
   const pdfMeetingItems = meeting.items.map(item => {
     const attachments = itemAttachments.find(attachment => attachment.itemId === item.id)?.attachments || []
+    if (!item.descriptionMd) {
+      item.descriptionMd = turndownService.turndown(item.description)
+    }
+    if (!item.decisionMd) {
+      item.decisionMd = turndownService.turndown(item.decision)
+    }
+
     return {
       title: item.title,
       descriptionText: item.descriptionText,
@@ -51,28 +55,35 @@ export const createPdf = async (meeting) => {
       meetingItems: pdfMeetingItems
     }
   }
+
   // Create pdf
   const { data } = await axios.post(PDF.API_URL, pdfData, { headers: { 'x-functions-key': PDF.API_KEY } })
   if (!data?.data || !data.data.base64) {
     throw new Error('Something is wrong with response from PDF generation: No base64 data returned')
   }
-  // Set in cache
-  const cacheKey = meeting.meetingId
-  pdfCache.set(cacheKey, data.data.base64)
 
-  // If DEMO_RUN we save the pdf to ignore dir for debugging
-  if (meeting.meetingConfig.DEMO_MODE) {
-    const ignoreDir = SMART.DEMO_PDF_DIR
-    if (!existsSync(ignoreDir)) {
-      mkdirSync(ignoreDir, { recursive: true })
-    }
-    const filePath = `${ignoreDir}/DEMO_${meeting.meetingId}.pdf`
-    const pdfBuff = Buffer.from(data.data.base64, 'base64')
-    writeFileSync(filePath, pdfBuff)
-  }
-
-  return CreatePdfResult.parse({
-    pdfCacheDir,
-    cacheKey
-  })
+  return data.data.base64
 }
+
+if (!existsSync(inputMeetingsDir)) {
+  mkdirSync(inputMeetingsDir, { recursive: true })
+}
+
+if (!existsSync(outputMeetingsDir)) {
+  mkdirSync(outputMeetingsDir, { recursive: true })
+}
+
+const meetingFiles = readdirSync(inputMeetingsDir).filter(file => file.endsWith('.json'))
+
+for (const meetingFile of meetingFiles) {
+  const filePath = `${inputMeetingsDir}/${meetingFile}`
+  const meeting = JSON.parse(readFileSync(filePath, 'utf-8'))
+  const pdfBase64 = await createPdf(meeting)
+
+  // write as pdf to output dir
+  const outputFilePath = `${outputMeetingsDir}/${meetingFile.replace('.json', '.pdf')}`
+  const pdfBuffer = Buffer.from(pdfBase64, 'base64')
+  writeFileSync(outputFilePath, pdfBuffer)
+}
+
+console.log('PDF generation completed')
