@@ -12,7 +12,7 @@ Enten bestill et sertifikat hvis du er av den rike og sikre typen, eller opprett
 - Om du ikke sitter på unix - bruk wsl på Windows
 - Først lager du public cert med private key (det er samma driten hva du setter som passord fordi Microsoft...):
 ```bash
-openssl req -newkey rsa:2048 -nodes -keyout ./cert/private_.key -x509 -days 365 -out ./cert/public.pem -subj '/CN=motereferat\/C={countryCode}/ST={state}/O={organization}' -passout pass:{someSuperSecretPassword}
+openssl req -newkey rsa:2048 -nodes -keyout ./cert/private.key -x509 -days 365 -out ./cert/public.pem -subj '/CN=motereferat\/C={countryCode}/ST={state}/O={organization}' -passout pass:{someSuperSecretPassword}
 ```
 - Fordi Microsoft er smart, må du slå sammen public.pem og private.key til en fil slik:
 ```
