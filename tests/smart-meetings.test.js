@@ -123,8 +123,8 @@ describe('createMeetingQueue works as expected when', () => {
   it('it has two cached meetings, which is not in newMeetingItems - the one corresponding to the listid and siteid should be included in the cached meeting first in the queue, the other not be included at all', () => {
     meetingCache.clear()
     const cachedMeeting = {
-      meetingId: 'EnSiteDa-EnListeDa-2023-10-06',
-      meetingDate: '2023-10-06',
+      meetingId: 'EnSiteDa-EnListeDa-2020-10-06',
+      meetingDate: '2020-10-06',
       archiveFlowStatus: createDefaultArchiveFlowStatus(),
       listInfo: mockedListInfo,
       meetingConfig: mockedMeetingConfig,
@@ -146,12 +146,12 @@ describe('createMeetingQueue works as expected when', () => {
         createMockMeetingItem('cached-item-4', 'Cached Item 4', '2023-10-05T00:00:00Z')
       ]
     }
-    meetingCache.set('EnSiteDa-EnListeDa-2023-10-06', cachedMeeting)
+    meetingCache.set('EnSiteDa-EnListeDa-2020-10-06', cachedMeeting)
     meetingCache.set('EnAnnenSiteDa-EnListeDa-2023-10-05', anotherIrrelevantCachedMeeting)
     const queue = createMeetingQueue(mockedMeetingConfig, mockedListInfo, meetingCache, newMeetingItems)
     assert.strictEqual(queue.length, 3)
-    assert.strictEqual(queue[0].meetingId, 'EnSiteDa-EnListeDa-2023-10-06')
-    assert.strictEqual(queue[0].meetingDate, '2023-10-06')
+    assert.strictEqual(queue[0].meetingId, 'EnSiteDa-EnListeDa-2020-10-06')
+    assert.strictEqual(queue[0].meetingDate, '2020-10-06')
     assert.strictEqual(queue[0].items.length, 3)
     assert.strictEqual(queue[0].items[0].id, 'cached-item')
     assert.strictEqual(queue[1].meetingId, 'EnSiteDa-EnListeDa-2023-10-02')
