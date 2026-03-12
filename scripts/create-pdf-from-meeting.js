@@ -50,7 +50,7 @@ const createPdf = async (meeting) => {
       meetingDate: meeting.meetingDate,
       sector: meeting.meetingConfig.PDF.SECTOR,
       meetingCaseNumber: meeting.archiveFlowStatus.jobs.syncMeetingArchiveCase.result.caseNumber,
-      paragraph: meeting.meetingConfig.ARCHIVE.DOCUMENT_PARAGRAPH || ARCHIVE.DOCUMENT_DEFAULT_VALUES.PARAGRAPH,
+      paragraph: meeting.meetingConfig.ARCHIVE.DOCUMENT_PARAGRAPH ?? ARCHIVE.DOCUMENT_DEFAULT_VALUES.PARAGRAPH,
       meetingTitle: meeting.meetingConfig.MEETING_ARENA,
       meetingItems: pdfMeetingItems
     }
